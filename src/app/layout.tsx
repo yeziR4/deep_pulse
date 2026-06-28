@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import "@mysten/dapp-kit/dist/index.css";
 import "./globals.css";
+import { WalletProviders } from "@/components/WalletProviders";
 
 export const metadata: Metadata = {
   title: "DeepPulse // Liquidity Sonar",
@@ -9,7 +11,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <WalletProviders>{children}</WalletProviders>
+      </body>
     </html>
   );
 }

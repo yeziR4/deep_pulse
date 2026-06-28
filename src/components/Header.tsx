@@ -1,37 +1,94 @@
 "use client";
 
+import { ConnectModal, useCurrentAccount, useCurrentWallet, useDisconnectWallet, useSignPersonalMessage } from "@mysten/dapp-kit";
 import { motion } from "framer-motion";
-import { CheckCircle2, Wallet } from "lucide-react";
-import { useEffect, useState } from "react";
-
-type InjectedSuiWallet = {
-  name?: string;
-  requestPermissions?: (input?: { permissions?: string[] }) => Promise<unknown>;
-  getAccounts?: () => Promise<string[]>;
-  connect?: () => Promise<{ accounts?: string[]; address?: string } | string[] | void>;
-};
-
-type WalletStatus = "idle" | "connecting" | "connected" | "missing" | "error";
-
-const walletKeys = ["suiWallet", "sui", "suiet", "martianSuiWallet"] as const;
-
-function getInjectedWallet(): InjectedSuiWallet | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const walletWindow = window as typeof window & Record<string, InjectedSuiWallet | undefined>;
-  for (const key of walletKeys) {
-    if (walletWindow[key]) {
-      return walletWindow[key] ?? null;
-    }
-  }
-
-  return null;
-}
+import { CheckCircle2, LogOut, ShieldCheck, Wallet } from "lucide-react";
+import { useMemo, useState } from "react";
 
 function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+function WalletControl() {
+  const account = useCurrentAccount();
+  const { currentWallet, isConnecting } = useCurrentWallet();
+  const { mutate: disconnectWallet, isPending: isDisconnecting } = useDisconnectWallet();
+  const { mutate: signPersonalMessage, isPending: isSigning } = useSignPersonalMessage();
+  const [isVerified, setIsVerified] = useState(false);
+  const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
+  const [signError, setSignError] = useState<string | null>(null);
+
+  const confirmationMessage = useMemo(() => {
+    const timestamp = new Date().toISOString();
+    return `DeepPulse wallet confirmation\nAddress: ${account?.address ?? "unknown"}\nTime: ${timestamp}`;
+  }, [account?.address]);
+
+  if (!account) {
+    return (
+      <ConnectModal
+        trigger={
+          <button className="ice-button flex items-center gap-2 px-4 py-2 font-mono text-xs font-black uppercase tracking-[0.12em] transition hover:-translate-y-0.5">
+            <Wallet className="size-4" />
+            {isConnecting ? "Connecting" : "Connect Wallet"}
+          </button>
+        }
+      />
+    );
+  }
+
+  const confirmWallet = () => {
+    setSignError(null);
+    signPersonalMessage(
+      {
+        message: new TextEncoder().encode(confirmationMessage)
+      },
+      {
+        onSuccess: (result) => {
+          setIsVerified(true);
+          setSignaturePreview(result.signature.slice(0, 10));
+        },
+        onError: (error) => {
+          setIsVerified(false);
+          setSignaturePreview(null);
+          setSignError(error.message || "Wallet confirmation failed");
+        }
+      }
+    );
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="hidden bg-slate-900/85 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-blue-100/75 shadow-inner lg:block">
+        <p className="text-blue-100/45">{currentWallet?.name ?? "Sui Wallet"}</p>
+        <p className="font-black text-cyan-100">{shortAddress(account.address)}</p>
+        {signError ? <p className="mt-1 normal-case tracking-normal text-pink-200">{signError}</p> : null}
+      </div>
+
+      <button
+        onClick={confirmWallet}
+        disabled={isSigning}
+        className="ice-button flex items-center gap-2 px-4 py-2 font-mono text-xs font-black uppercase tracking-[0.12em] transition hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-75"
+        title={signaturePreview ? `Signature starts ${signaturePreview}` : "Ask the connected wallet to sign a DeepPulse confirmation message"}
+      >
+        {isVerified ? <CheckCircle2 className="size-4 text-emerald-200" /> : <ShieldCheck className="size-4" />}
+        {isSigning ? "Confirming" : isVerified ? "Verified" : shortAddress(account.address)}
+      </button>
+
+      <button
+        onClick={() => {
+          setIsVerified(false);
+          setSignaturePreview(null);
+          disconnectWallet();
+        }}
+        disabled={isDisconnecting}
+        className="grid size-9 place-items-center bg-slate-900/85 text-blue-100/70 shadow-inner transition hover:-translate-y-0.5 hover:bg-pink-500/15 hover:text-pink-100 disabled:cursor-wait disabled:opacity-70"
+        aria-label="Disconnect wallet"
+        title="Disconnect wallet"
+      >
+        <LogOut className="size-4" />
+      </button>
+    </div>
+  );
 }
 
 function YetiOperatorMark() {
@@ -45,76 +102,6 @@ function YetiOperatorMark() {
 }
 
 export function Header() {
-  const [walletStatus, setWalletStatus] = useState<WalletStatus>("idle");
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-
-  useEffect(() => {
-    const wallet = getInjectedWallet();
-    if (!wallet?.getAccounts) {
-      return;
-    }
-
-    wallet
-      .getAccounts()
-      .then((accounts) => {
-        if (accounts[0]) {
-          setWalletAddress(accounts[0]);
-          setWalletStatus("connected");
-        }
-      })
-      .catch(() => undefined);
-  }, []);
-
-  const connectWallet = async () => {
-    const wallet = getInjectedWallet();
-    if (!wallet) {
-      setWalletStatus("missing");
-      return;
-    }
-
-    setWalletStatus("connecting");
-
-    try {
-      if (wallet.requestPermissions) {
-        await wallet.requestPermissions({ permissions: ["viewAccount"] });
-      }
-
-      let accounts = wallet.getAccounts ? await wallet.getAccounts() : [];
-
-      if (!accounts.length && wallet.connect) {
-        const result = await wallet.connect();
-        if (Array.isArray(result)) {
-          accounts = result;
-        } else if (result?.accounts) {
-          accounts = result.accounts;
-        } else if (result?.address) {
-          accounts = [result.address];
-        }
-      }
-
-      if (!accounts[0]) {
-        setWalletStatus("error");
-        return;
-      }
-
-      setWalletAddress(accounts[0]);
-      setWalletStatus("connected");
-    } catch {
-      setWalletStatus("error");
-    }
-  };
-
-  const walletLabel =
-    walletStatus === "connected" && walletAddress
-      ? shortAddress(walletAddress)
-      : walletStatus === "connecting"
-        ? "Confirming"
-        : walletStatus === "missing"
-          ? "Install Sui Wallet"
-          : walletStatus === "error"
-            ? "Try Again"
-            : "Connect Wallet";
-
   return (
     <motion.header
       initial={{ opacity: 0, y: -10 }}
@@ -139,15 +126,7 @@ export function Header() {
           <span className="size-2 rounded-full bg-emerald-300 shadow-neon-green" />
           Mainnet
         </div>
-        <button
-          onClick={connectWallet}
-          className="ice-button flex items-center gap-2 px-4 py-2 font-mono text-xs font-black uppercase tracking-[0.12em] transition hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-80"
-          disabled={walletStatus === "connecting"}
-          aria-live="polite"
-        >
-          {walletStatus === "connected" ? <CheckCircle2 className="size-4 text-emerald-200" /> : <Wallet className="size-4" />}
-          {walletLabel}
-        </button>
+        <WalletControl />
       </div>
     </motion.header>
   );
