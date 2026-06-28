@@ -23,17 +23,17 @@ const formatQty = (value: number) => value.toLocaleString("en-US", { maximumFrac
 
 function Ladder({ title, side, orders }: { title: string; side: "bid" | "ask"; orders: OrderBookItem[] }) {
   const accent = side === "bid" ? "text-emerald-300" : "text-red-300";
-  const border = side === "bid" ? "border-emerald-400/20" : "border-red-400/20";
+  const inset = side === "bid" ? "shadow-[inset_3px_0_0_rgba(52,211,153,0.55)]" : "shadow-[inset_3px_0_0_rgba(248,113,113,0.55)]";
 
   return (
-    <section className={`border ${border} bg-slate-950/50`}>
-      <div className="flex items-center justify-between border-b border-slate-700/70 px-3 py-2">
+    <section className={`bg-slate-950/50 ${inset}`}>
+      <div className="flex items-center justify-between px-3 py-2">
         <span className={`font-mono text-xs font-bold uppercase tracking-[0.22em] ${accent}`}>{title}</span>
         {side === "bid" ? <ArrowDownLeft className="size-4 text-emerald-300" /> : <ArrowUpRight className="size-4 text-red-300" />}
       </div>
       <div className="max-h-48 overflow-hidden">
         {orders.slice(0, 12).map((order) => (
-          <div key={order.id} className="grid grid-cols-2 gap-2 border-b border-slate-800/70 px-3 py-1.5 font-mono text-xs">
+          <div key={order.id} className="grid grid-cols-2 gap-2 px-3 py-1.5 font-mono text-xs odd:bg-white/[0.015]">
             <span className={accent}>{formatUsd(order.price)}</span>
             <span className="text-right text-slate-300">{formatQty(order.quantity)}</span>
           </div>
@@ -60,25 +60,25 @@ export function DepthTicker({ bids, asks, spotPrice, lastMatch, totals }: DepthT
       </div>
 
       <div className="grid grid-cols-2 gap-3 font-mono text-xs">
-        <div className="border border-emerald-400/20 bg-emerald-400/5 p-3">
+        <div className="bg-emerald-400/5 p-3 shadow-[inset_3px_0_0_rgba(52,211,153,0.55)]">
           <p className="uppercase tracking-[0.18em] text-emerald-300">Bid Depth</p>
           <p className="mt-1 text-lg font-bold text-white">{formatQty(totals.bidDepth)}</p>
         </div>
-        <div className="border border-red-400/20 bg-red-400/5 p-3">
+        <div className="bg-red-400/5 p-3 shadow-[inset_3px_0_0_rgba(248,113,113,0.55)]">
           <p className="uppercase tracking-[0.18em] text-red-300">Ask Depth</p>
           <p className="mt-1 text-lg font-bold text-white">{formatQty(totals.askDepth)}</p>
         </div>
-        <div className="border border-slate-700 bg-slate-900/70 p-3">
+        <div className="bg-slate-900/70 p-3">
           <p className="uppercase tracking-[0.18em] text-slate-400">Best Bid</p>
           <p className="mt-1 text-sm font-bold text-emerald-200">{formatUsd(totals.bestBid)}</p>
         </div>
-        <div className="border border-slate-700 bg-slate-900/70 p-3">
+        <div className="bg-slate-900/70 p-3">
           <p className="uppercase tracking-[0.18em] text-slate-400">Best Ask</p>
           <p className="mt-1 text-sm font-bold text-red-200">{formatUsd(totals.bestAsk)}</p>
         </div>
       </div>
 
-      <div className="border border-cyan-400/20 bg-cyan-400/5 p-3 font-mono">
+      <div className="bg-cyan-400/5 p-3 font-mono shadow-inner">
         <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
           <span>Spread</span>
           <span className="text-cyan-200">{formatUsd(totals.spread)}</span>
@@ -89,7 +89,7 @@ export function DepthTicker({ bids, asks, spotPrice, lastMatch, totals }: DepthT
       </div>
 
       {lastMatch ? (
-        <div className="border border-yellow-300/30 bg-yellow-300/10 p-3 font-mono text-xs">
+        <div className="bg-yellow-300/10 p-3 font-mono text-xs shadow-[inset_3px_0_0_rgba(253,224,71,0.6)]">
           <p className="uppercase tracking-[0.22em] text-yellow-200">Latest Match</p>
           <p className="mt-2 text-slate-200">
             {lastMatch.side === "ask" ? "Aggressive Buy" : "Aggressive Sell"} / {formatUsd(lastMatch.price)} /{" "}

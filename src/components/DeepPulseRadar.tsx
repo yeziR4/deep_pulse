@@ -502,10 +502,10 @@ export function DeepPulseRadar({ bids, asks, spotPrice, lastMatch, selectedPoolL
 
   const tooltipTone =
     hoverInfo?.tone === "ask"
-      ? "border-pink-300/35 text-pink-50"
+      ? "text-pink-50 shadow-[inset_3px_0_0_rgba(244,114,182,0.78),0_12px_28px_rgba(0,0,0,0.35)]"
       : hoverInfo?.tone === "bid"
-        ? "border-emerald-300/35 text-emerald-50"
-        : "border-cyan-300/35 text-cyan-50";
+        ? "text-emerald-50 shadow-[inset_3px_0_0_rgba(52,211,153,0.78),0_12px_28px_rgba(0,0,0,0.35)]"
+        : "text-cyan-50 shadow-[inset_3px_0_0_rgba(34,211,238,0.78),0_12px_28px_rgba(0,0,0,0.35)]";
 
   return (
     <div className="scanline cockpit-frame relative h-[64vh] min-h-[500px] overflow-hidden bg-slate-950 md:h-[calc(100vh-242px)] md:min-h-[460px] xl:h-[calc(100vh-226px)]">
@@ -518,16 +518,16 @@ export function DeepPulseRadar({ bids, asks, spotPrice, lastMatch, selectedPoolL
         onPointerLeave={() => setHoverInfo(null)}
         onMouseLeave={() => setHoverInfo(null)}
       />
-      <div className="pointer-events-none absolute left-4 top-4 border border-blue-100/20 bg-slate-950 px-3 py-2 font-mono uppercase text-blue-100">
+      <div className="pointer-events-none absolute left-4 top-4 bg-slate-950/95 px-3 py-2 font-mono uppercase text-blue-100 shadow-[0_12px_28px_rgba(0,0,0,0.28)]">
         <p className="text-[10px] tracking-[0.22em] text-blue-100/58">Liquidity Sonar</p>
         <p className="mt-1 text-xs font-black tracking-[0.12em]">{selectedPoolLabel} / DeepBook V3</p>
       </div>
-      <div className="pointer-events-none absolute right-4 top-4 border border-cyan-300/20 bg-slate-950 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-cyan-100">
+      <div className="pointer-events-none absolute right-4 top-4 bg-slate-950/95 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-cyan-100 shadow-[0_12px_28px_rgba(0,0,0,0.28)]">
         Order book made visual
       </div>
       {hoverInfo ? (
         <div
-          className={`pointer-events-none absolute z-20 max-w-[240px] border bg-slate-950 px-3 py-2 font-mono shadow-[0_12px_28px_rgba(0,0,0,0.35)] ${tooltipTone}`}
+          className={`pointer-events-none absolute z-20 max-w-[240px] bg-slate-950 px-3 py-2 font-mono ${tooltipTone}`}
           style={{
             left: Math.min(Math.max(12, hoverInfo.x + 16), 260),
             top: Math.max(86, hoverInfo.y - 18)

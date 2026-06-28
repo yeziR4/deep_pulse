@@ -45,9 +45,9 @@ export function MarketIntel({ whaleAlert, health, routeIntel }: MarketIntelProps
               <AlertTriangle className="size-5 text-pink-300" />
               Whale Wall Alert
             </div>
-            <span className="border border-white/15 px-3 py-1 text-[10px] text-blue-100/70">View All</span>
+            <span className="bg-white/5 px-3 py-1 text-[10px] text-blue-100/70">View All</span>
           </div>
-          <div className="mt-4 border border-pink-300/15 bg-pink-500/10 p-4">
+          <div className="mt-4 bg-pink-500/10 p-4 shadow-inner">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-200">
               Large {whaleAlert.side === "ask" ? "Sell" : "Buy"} Wall Detected
             </p>
@@ -66,7 +66,7 @@ export function MarketIntel({ whaleAlert, health, routeIntel }: MarketIntelProps
             <ShieldAlert className="size-5 text-pink-300" />
             Whale Wall Alert
           </div>
-          <div className="mt-4 border border-cyan-300/15 bg-cyan-300/10 p-4">
+          <div className="mt-4 bg-cyan-300/10 p-4 shadow-inner">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-300">No sudden price wall</p>
             <p className="mt-1 text-2xl font-black text-blue-100">Book stable</p>
             <p className="mt-3 text-xs leading-relaxed text-blue-100/58">No single price level is dominating the visible book.</p>
@@ -84,7 +84,7 @@ export function MarketIntel({ whaleAlert, health, routeIntel }: MarketIntelProps
         </div>
         <div className="grid grid-cols-[112px_1fr] items-center gap-4">
           <div
-            className="grid size-28 place-items-center border border-cyan-300/20 bg-[conic-gradient(#38bdf8_var(--score),rgba(15,23,42,0.8)_0)] p-3"
+            className="grid size-28 place-items-center bg-[conic-gradient(#38bdf8_var(--score),rgba(15,23,42,0.8)_0)] p-3 shadow-[0_0_32px_rgba(56,189,248,0.12)]"
             style={{ "--score": `${health.score}%` } as React.CSSProperties}
           >
             <div className="grid size-full place-items-center bg-slate-950/90 font-mono">
@@ -114,11 +114,11 @@ export function MarketIntel({ whaleAlert, health, routeIntel }: MarketIntelProps
           {routeIntel.pools.slice(0, 3).map((pool, index) => (
             <div
               key={pool.poolKey}
-              className={`grid grid-cols-[34px_1fr_auto_auto] items-center gap-3 border px-3 py-2 font-mono text-xs ${
-                index === 0 ? "border-cyan-300/40 bg-cyan-400/15" : "border-cyan-300/15 bg-slate-950/50"
+              className={`grid grid-cols-[34px_1fr_auto_auto] items-center gap-3 px-3 py-2 font-mono text-xs ${
+                index === 0 ? "bg-cyan-400/15 shadow-[inset_3px_0_0_rgba(34,211,238,0.9)]" : "bg-slate-950/50"
               }`}
             >
-              <span className="grid size-7 place-items-center border border-blue-300/20 bg-blue-300/10 text-blue-100">{index + 1}</span>
+              <span className="grid size-7 place-items-center bg-blue-300/10 text-blue-100">{index + 1}</span>
               <div>
                 <p className={pool.poolKey === routeIntel.bestPoolKey ? "font-bold text-cyan-100" : "text-slate-200"}>{pool.label}</p>
                 <p className="text-[10px] text-blue-100/45">DeepBook V3</p>
